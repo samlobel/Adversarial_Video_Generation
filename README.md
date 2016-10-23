@@ -4,6 +4,18 @@ This project implements a generative adversarial network to predict future frame
 Couprie & LeCun. Their official code (using Torch) can be found 
 [here](https://github.com/coupriec/VideoPredictionICLR2016).
 
+## SAM STUFF 
+This one is perfect, because A) it actually works, and B) it has get_test_batch and get_train_batch methods that I can modify.
+I'll do them straight from experience replay. It'll be great.
+
+* First, I want to add an action log.
+* Second, I want to modify this to transform the input into a feature vector, and do the action-modification stuff to it.
+
+## _NOTE: This won't have its original functionality any more, I'm switching it to only take in action values.
+
+
+## NOT SAM STUFF
+
 Adversarial generation uses two networks – a generator and a discriminator – to improve the sharpness of generated images. Given the past four frames of video, the generator learns to generate accurate predictions for the next frame. Given either a generated or a real-world image, the discriminator learns to correctly classify between generated and real. The two networks "compete," with the generator attempting to fool the discriminator into classifying its output as real. This forces the generator to create frames that are very similar to what real frames in the domain might look like.
 
 ## Results and Comparison
