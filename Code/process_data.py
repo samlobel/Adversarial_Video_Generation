@@ -29,12 +29,12 @@ from utils import process_clip
 
 
 def actions_to_one_hot(actions):
-    print('num_moves in conf is {}'.format(c.conf['num_moves']))
+    # print('num_moves in conf is {}'.format(c.conf['num_moves']))
     one_hot_action = np.zeros((len(actions), c.conf['num_moves']), dtype=np.float32)
-    print('actions: {}'.format(actions))
-    print('one_hot_action: {}'.format(one_hot_action))
+    # print('actions: {}'.format(actions))
+    # print('one_hot_action: {}'.format(one_hot_action))
     for num, act in enumerate(actions):
-        print('act is {} and num is {}'.format(act, num))
+        # print('act is {} and num is {}'.format(act, num))
         one_hot_action[num][act] = 1.0
     return one_hot_action
 
