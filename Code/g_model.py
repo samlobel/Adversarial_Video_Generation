@@ -11,9 +11,10 @@ from utils import psnr_error, sharp_diff_error
 from tfutils import w, b
 
 # noinspection PyShadowingNames
+# So, I sort of need a path to the config file. That's fine though.
 class GeneratorModel:
     def __init__(self, session, summary_writer, height_train, width_train, height_test,
-                 width_test, scale_layer_fms, scale_kernel_sizes):
+                 width_test, scale_layer_fms, scale_kernel_sizes, data_dir):
         """
         Initializes a GeneratorModel.
 
@@ -25,6 +26,7 @@ class GeneratorModel:
         @param width_test: The width of the input images for testing.
         @param scale_layer_fms: The number of feature maps in each layer of each scale network.
         @param scale_kernel_sizes: The size of the kernel for each layer of each scale network.
+        @param data_dir: The path to the data dir, for the num_actions config.
 
         @type session: tf.Session
         @type summary_writer: tf.train.SummaryWriter
@@ -45,6 +47,8 @@ class GeneratorModel:
         self.scale_kernel_sizes = scale_kernel_sizes
         self.num_scale_nets = len(scale_layer_fms)
 
+        c.load_config(data_dir)
+
         self.define_graph()
 
     # noinspection PyAttributeOutsideInit
@@ -59,7 +63,7 @@ class GeneratorModel:
 
             with tf.name_scope('data'):
                 self.input_frames_train = tf.placeholder(
-                    tf.float32, shape=[None, self.height_train, self.width_train, 3 * c.HIST_LEN])
+                    tf.float32, shape=[None, self.height_train, self.width_train, (3+c.conf['num_moves']) * c.HIST_LEN])
                 self.gt_frames_train = tf.placeholder(
                     tf.float32, shape=[None, self.height_train, self.width_train, 3])
 

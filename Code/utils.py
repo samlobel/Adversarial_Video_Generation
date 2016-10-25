@@ -162,7 +162,7 @@ def process_clip():
     clips, actions = get_full_clips_and_actions(c.TRAIN_DIR, 1)
     clip = clips[0]
     action = actions[0]
-    print('clip shape: {}'.format(clip.shape))
+    # print('clip shape: {}'.format(clip.shape))
 
     # Randomly crop the clip. With 0.05 probability, take the first crop offered, otherwise,
     # repeat until we have a clip with movement in it.
