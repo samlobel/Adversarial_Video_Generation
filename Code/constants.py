@@ -4,10 +4,19 @@ from glob import glob
 import shutil
 from datetime import datetime
 from scipy.ndimage import imread
+import json
 
 ##
 # Data
 ##
+
+
+conf = None
+def load_config(data_dir):
+    global conf
+    with open(os.path.join(data_dir, 'config.json'), 'r') as f:
+        json_conf = json.loads(f.read())
+        conf = json_conf
 
 def get_date_str():
     """
@@ -50,7 +59,7 @@ def get_test_frame_dims():
     return shape[0], shape[1]
 
 def get_train_frame_dims():
-    img_path = glob(os.path.join(TRAIN_DIR, '*/*'))[0]
+    img_path = glob(os.path.join(TRAIN_DIR, '*/*.png'))[0]
     img = imread(img_path, mode='RGB')
     shape = np.shape(img)
 

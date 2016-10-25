@@ -54,7 +54,53 @@ def clip_l2_diff(clip):
 
     return diff
 
-def get_full_clips(data_dir, num_clips, num_rec_out=1):
+# def get_full_clips(data_dir, num_clips, num_rec_out=1):
+#     """
+#     Loads a batch of random clips from the unprocessed train or test data.
+
+#     @param data_dir: The directory of the data to read. Should be either c.TRAIN_DIR or c.TEST_DIR.
+#     @param num_clips: The number of clips to read.
+#     @param num_rec_out: The number of outputs to predict. Outputs > 1 are computed recursively,
+#                         using the previously-generated frames as input. Default = 1.
+
+#     @return: An array of shape
+#              [num_clips, c.TRAIN_HEIGHT, c.TRAIN_WIDTH, (3 * (c.HIST_LEN + num_rec_out))].
+#              A batch of frame sequences with values normalized in range [-1, 1].
+#     """
+#     if c.conf is None:
+#         c.load_config(data_dir)
+
+#     clips = np.empty([num_clips,
+#                       c.FULL_HEIGHT,
+#                       c.FULL_WIDTH,
+#                       (3 * (c.HIST_LEN + num_rec_out))])
+#     actions = np.empty(num_cips)
+
+#     # get num_clips random episodes
+#     ep_dirs = np.random.choice(glob(os.path.join(data_dir, '*')), num_clips)
+
+#     # get a random clip of length HIST_LEN + num_rec_out from each episode
+#     for clip_num, ep_dir in enumerate(ep_dirs):
+#         ep_frame_paths = sorted(glob(os.path.join(ep_dir, c.conf['frame_prefix'] + '*')))
+#         ep_action_paths = sorted(glob(os.path.join(ep_dir, c.conf['action_prefix'] + '*')))
+#         start_index = np.random.choice(len(ep_frame_paths) - (c.HIST_LEN + num_rec_out - 1))
+#         clip_frame_paths = ep_frame_paths[start_index:start_index + (c.HIST_LEN + num_rec_out)]
+#         clip_action_paths = ep_action_paths[start_index:start_index + (c.HIST_LEN + num_rec_out)]
+
+#         # read in frames
+#         for frame_num, frame_path in enumerate(clip_frame_paths):
+#             frame = imread(frame_path, mode='RGB')
+#             norm_frame = normalize_frames(frame)
+
+#             clips[clip_num, :, :, frame_num * 3:(frame_num + 1) * 3] = norm_frame
+#         for act_num, act_path in enumerate(clip_action_paths):
+#             with open(act_path,'r') as f:
+#                 act = int(f.read())
+#                 actions[frame_num]=act
+
+#     return clips, actions
+
+def get_full_clips_and_actions(data_dir, num_clips, num_rec_out=1):
     """
     Loads a batch of random clips from the unprocessed train or test data.
 
@@ -63,23 +109,32 @@ def get_full_clips(data_dir, num_clips, num_rec_out=1):
     @param num_rec_out: The number of outputs to predict. Outputs > 1 are computed recursively,
                         using the previously-generated frames as input. Default = 1.
 
-    @return: An array of shape
+    @return: Two arrays. One of shape
              [num_clips, c.TRAIN_HEIGHT, c.TRAIN_WIDTH, (3 * (c.HIST_LEN + num_rec_out))].
              A batch of frame sequences with values normalized in range [-1, 1].
+
+             And, an array of size [num_clips] that is the int values of each action. To be
+             converted later into the proper input format.
     """
-    clips = np.empty([num_clips,
+    if c.conf is None:
+        c.load_config(data_dir)
+
+    clips = np.zeros([num_clips,
                       c.FULL_HEIGHT,
                       c.FULL_WIDTH,
                       (3 * (c.HIST_LEN + num_rec_out))])
+    actions = np.zeros((num_clips, c.HIST_LEN + num_rec_out))
 
     # get num_clips random episodes
-    ep_dirs = np.random.choice(glob(os.path.join(data_dir, '*')), num_clips)
+    ep_dirs = np.random.choice(glob(os.path.join(data_dir, '*', '')), num_clips)
 
     # get a random clip of length HIST_LEN + num_rec_out from each episode
     for clip_num, ep_dir in enumerate(ep_dirs):
-        ep_frame_paths = sorted(glob(os.path.join(ep_dir, '*')))
+        ep_frame_paths = sorted(glob(os.path.join(ep_dir, c.conf['frame_prefix'] + '*')))
+        ep_action_paths = sorted(glob(os.path.join(ep_dir, c.conf['action_prefix'] + '*')))
         start_index = np.random.choice(len(ep_frame_paths) - (c.HIST_LEN + num_rec_out - 1))
         clip_frame_paths = ep_frame_paths[start_index:start_index + (c.HIST_LEN + num_rec_out)]
+        clip_action_paths = ep_action_paths[start_index:start_index + (c.HIST_LEN + num_rec_out)]
 
         # read in frames
         for frame_num, frame_path in enumerate(clip_frame_paths):
@@ -87,8 +142,15 @@ def get_full_clips(data_dir, num_clips, num_rec_out=1):
             norm_frame = normalize_frames(frame)
 
             clips[clip_num, :, :, frame_num * 3:(frame_num + 1) * 3] = norm_frame
+        for act_num, act_path in enumerate(clip_action_paths):
+            print(act_num)
+            print(act_path)
+            with open(act_path,'r') as f:
+                act = int(f.read())
+                actions[clip_num, act_num]=act
+                print(actions)
 
-    return clips
+    return clips, actions
 
 def process_clip():
     """
@@ -97,7 +159,10 @@ def process_clip():
     @return: An array of shape [c.TRAIN_HEIGHT, c.TRAIN_WIDTH, (3 * (c.HIST_LEN + 1))].
              A frame sequence with values normalized in range [-1, 1].
     """
-    clip = get_full_clips(c.TRAIN_DIR, 1)[0]
+    clips, actions = get_full_clips_and_actions(c.TRAIN_DIR, 1)
+    clip = clips[0]
+    action = actions[0]
+    print('clip shape: {}'.format(clip.shape))
 
     # Randomly crop the clip. With 0.05 probability, take the first crop offered, otherwise,
     # repeat until we have a clip with movement in it.
@@ -111,7 +176,7 @@ def process_clip():
         if take_first or clip_l2_diff(cropped_clip) > c.MOVEMENT_THRESHOLD:
             break
 
-    return cropped_clip
+    return cropped_clip, action
 
 def get_train_batch():
     """

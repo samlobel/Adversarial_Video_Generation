@@ -11,7 +11,7 @@ I'll do them straight from experience replay. It'll be great.
 * First, I want to add an action log.
 * Second, I want to modify this to transform the input into a feature vector, and do the action-modification stuff to it.
 
-## _NOTE: This won't have its original functionality any more, I'm switching it to only take in action values.
+## _NOTE: This won't have its original functionality any more, I'm switching it to only take in action values._
 
 
 ## NOT SAM STUFF
