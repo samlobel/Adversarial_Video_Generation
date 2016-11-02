@@ -13,6 +13,8 @@ I'll do them straight from experience replay. It'll be great.
 
 ## _NOTE: This won't have its original functionality any more, I'm switching it to only take in action values._
 
+## _NOTE: I'm hardcoding the num_moves parameter in. It's easier that way._
+
 
 ## NOT SAM STUFF
 

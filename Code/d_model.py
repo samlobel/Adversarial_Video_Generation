@@ -159,10 +159,12 @@ class DiscriminatorModel:
         """
         ##
         # Split into inputs and outputs
+
+        # It's not supposed to be those frames....
         ##
 
-        input_frames = batch[:, :, :, :-3]
-        gt_output_frames = batch[:, :, :, -3:]
+        input_frames = batch[:, :, :, :-3 - c.NUM_POSSIBLE_MOVES] #All but the last (3 + num_moves)
+        gt_output_frames = batch[:, :, :, -3 - c.NUM_POSSIBLE_MOVES: -c.NUM_POSSIBLE_MOVES] #The first three not included in the other guy
 
         ##
         # Train

@@ -90,6 +90,7 @@ class AVGRunner:
     def test(self):
         """
         Runs one test step on the generator network.
+        Passes in processed data in a way 
         """
         batch = get_test_batch(c.BATCH_SIZE, num_rec_out=self.num_test_rec)
         self.g_model.test_batch(

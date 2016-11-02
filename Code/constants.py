@@ -11,13 +11,6 @@ import json
 ##
 
 
-conf = None
-def load_config(data_dir):
-    global conf
-    with open(os.path.join(data_dir, 'config.json'), 'r') as f:
-        json_conf = json.loads(f.read())
-        conf = json_conf
-
 def get_date_str():
     """
     @return: A string representing the current date/time that can be used as a directory name.
@@ -52,7 +45,7 @@ def clear_dir(directory):
             print(e)
 
 def get_test_frame_dims():
-    img_path = glob(os.path.join(TEST_DIR, '*/*'))[0]
+    img_path = glob(os.path.join(TEST_DIR, '*/*.png'))[0]
     img = imread(img_path, mode='RGB')
     shape = np.shape(img)
 
@@ -76,15 +69,29 @@ def set_test_dir(directory):
     TEST_DIR = directory
     FULL_HEIGHT, FULL_WIDTH = get_test_frame_dims()
 
+
+NUM_POSSIBLE_MOVES=6
+
+CHANNELS_PER_FRAME=NUM_POSSIBLE_MOVES+3
+
+FRAME_PREFIX = 'FRAME'
+ACTION_PREFIX = 'ACTION'
 # root directory for all data
 DATA_DIR = get_dir('../Data/')
+SUBDATA_DIR = 'Pong_01'
+
+TRAIN_DIR = os.path.join(DATA_DIR, SUBDATA_DIR, 'Train', '')
+
+TEST_DIR = os.path.join(DATA_DIR, SUBDATA_DIR, 'Test', '')
 # directory of unprocessed training frames
-TRAIN_DIR = os.path.join(DATA_DIR, 'Ms_Pacman/Train/')
+
+# TRAIN_DIR = os.path.join(DATA_DIR, 'Ms_Pacman/Train/')
 # directory of unprocessed test frames
-TEST_DIR = os.path.join(DATA_DIR, 'Ms_Pacman/Test/')
+# TEST_DIR = os.path.join(DATA_DIR, 'Ms_Pacman/Test/')
 # Directory of processed training clips.
 # hidden so finder doesn't freeze w/ so many files. DON'T USE `ls` COMMAND ON THIS DIR!
-TRAIN_DIR_CLIPS = get_dir(os.path.join(DATA_DIR, '.Clips/'))
+
+TRAIN_DIR_CLIPS = get_dir(os.path.join(DATA_DIR, SUBDATA_DIR, '.Clips/'))
 
 # For processing clips. l2 diff between frames must be greater than this
 MOVEMENT_THRESHOLD = 100
@@ -136,11 +143,19 @@ SUMMARY_SAVE_DIR = get_dir(os.path.join(SAVE_DIR, 'Summaries/', SAVE_NAME))
 IMG_SAVE_DIR = get_dir(os.path.join(SAVE_DIR, 'Images/', SAVE_NAME))
 
 
-STATS_FREQ      = 10     # how often to print loss/train error stats, in # steps
-SUMMARY_FREQ    = 100    # how often to save the summaries, in # steps
-IMG_SAVE_FREQ   = 1000   # how often to save generated images, in # steps
-TEST_FREQ       = 5000   # how often to test the model on test data, in # steps
-MODEL_SAVE_FREQ = 10000  # how often to save the model, in # steps
+# STATS_FREQ      = 10     # how often to print loss/train error stats, in # steps
+# SUMMARY_FREQ    = 10    # how often to save the summaries, in # steps
+# IMG_SAVE_FREQ   = 5   # how often to save generated images, in # steps
+# TEST_FREQ       = 5000   # how often to test the model on test data, in # steps
+# MODEL_SAVE_FREQ = 10000  # how often to save the model, in # steps
+
+STATS_FREQ      = 5     # how often to print loss/train error stats, in # steps
+SUMMARY_FREQ    = 5    # how often to save the summaries, in # steps
+IMG_SAVE_FREQ   = 5   # how often to save generated images, in # steps
+TEST_FREQ       = 5   # how often to test the model on test data, in # steps
+MODEL_SAVE_FREQ = 5  # how often to save the model, in # steps
+
+
 
 ##
 # General training
@@ -178,10 +193,10 @@ LRATE_G = 0.00004  # Value in paper is 0.04
 PADDING_G = 'SAME'
 # feature maps for each convolution of each scale network in the generator model
 # e.g SCALE_FMS_G[1][2] is the input of the 3rd convolution in the 2nd scale network.
-SCALE_FMS_G = [[3 * HIST_LEN, 128, 256, 128, 3],
-               [3 * (HIST_LEN + 1), 128, 256, 128, 3],
-               [3 * (HIST_LEN + 1), 128, 256, 512, 256, 128, 3],
-               [3 * (HIST_LEN + 1), 128, 256, 512, 256, 128, 3]]
+SCALE_FMS_G = [[CHANNELS_PER_FRAME * HIST_LEN, 128, 256, 128, 3],
+               [CHANNELS_PER_FRAME * HIST_LEN + 3, 128, 256, 128, 3],
+               [CHANNELS_PER_FRAME * HIST_LEN + 3, 128, 256, 512, 256, 128, 3],
+               [CHANNELS_PER_FRAME * HIST_LEN + 3, 128, 256, 512, 256, 128, 3]]
 # kernel sizes for each convolution of each scale network in the generator model
 SCALE_KERNEL_SIZES_G = [[3, 3, 3, 3],
                         [5, 3, 3, 5],

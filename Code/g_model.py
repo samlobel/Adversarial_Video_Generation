@@ -14,7 +14,7 @@ from tfutils import w, b
 # So, I sort of need a path to the config file. That's fine though.
 class GeneratorModel:
     def __init__(self, session, summary_writer, height_train, width_train, height_test,
-                 width_test, scale_layer_fms, scale_kernel_sizes, data_dir):
+                 width_test, scale_layer_fms, scale_kernel_sizes):
         """
         Initializes a GeneratorModel.
 
@@ -26,7 +26,6 @@ class GeneratorModel:
         @param width_test: The width of the input images for testing.
         @param scale_layer_fms: The number of feature maps in each layer of each scale network.
         @param scale_kernel_sizes: The size of the kernel for each layer of each scale network.
-        @param data_dir: The path to the data dir, for the num_actions config.
 
         @type session: tf.Session
         @type summary_writer: tf.train.SummaryWriter
@@ -46,9 +45,6 @@ class GeneratorModel:
         self.scale_layer_fms = scale_layer_fms
         self.scale_kernel_sizes = scale_kernel_sizes
         self.num_scale_nets = len(scale_layer_fms)
-
-        c.load_config(data_dir)
-
         self.define_graph()
 
     # noinspection PyAttributeOutsideInit
@@ -63,12 +59,12 @@ class GeneratorModel:
 
             with tf.name_scope('data'):
                 self.input_frames_train = tf.placeholder(
-                    tf.float32, shape=[None, self.height_train, self.width_train, (3+c.conf['num_moves']) * c.HIST_LEN])
+                    tf.float32, shape=[None, self.height_train, self.width_train, (3 + c.NUM_POSSIBLE_MOVES) * c.HIST_LEN])
                 self.gt_frames_train = tf.placeholder(
                     tf.float32, shape=[None, self.height_train, self.width_train, 3])
 
                 self.input_frames_test = tf.placeholder(
-                    tf.float32, shape=[None, self.height_test, self.width_test, 3 * c.HIST_LEN])
+                    tf.float32, shape=[None, self.height_test, self.width_test, (3+c.NUM_POSSIBLE_MOVES) * c.HIST_LEN])
                 self.gt_frames_test = tf.placeholder(
                     tf.float32, shape=[None, self.height_test, self.width_test, 3])
 
@@ -251,9 +247,12 @@ class GeneratorModel:
         ##
         # Split into inputs and outputs
         ##
-
-        input_frames = batch[:, :, :, :-3]
-        gt_frames = batch[:, :, :, -3:]
+        # print('batch shape is {}'.format(batch.shape))
+        input_frames = batch[:, :, :, :-3 - c.NUM_POSSIBLE_MOVES]
+        gt_frames = batch[:, :, :, -3 - c.NUM_POSSIBLE_MOVES: -c.NUM_POSSIBLE_MOVES]
+        # print(gt_frames)
+        # print('gt frames shape is: {}'.format(gt_frames.shape))
+        # print('input frames shape is: {}'.format(input_frames.shape))
 
         ##
         # Train
@@ -316,6 +315,7 @@ class GeneratorModel:
                 for i, img in enumerate(gt_frames):
                     # for skimage.transform.resize, images need to be in range [0, 1], so normalize
                     # to [0, 1] before resize and back to [-1, 1] after
+
                     sknorm_img = (img / 2) + 0.5
                     resized_frame = resize(sknorm_img, [scale_height, scale_width, 3])
                     scaled_gt_frames[i] = (resized_frame - 0.5) * 2
@@ -328,7 +328,7 @@ class GeneratorModel:
 
                 # save input images
                 for frame_num in xrange(c.HIST_LEN):
-                    img = input_frames[pred_num, :, :, (frame_num * 3):((frame_num + 1) * 3)]
+                    img = input_frames[pred_num, :, :, frame_num * (3+c.NUM_POSSIBLE_MOVES):frame_num * (3+c.NUM_POSSIBLE_MOVES) + 3]
                     imsave(os.path.join(pred_dir, 'input_' + str(frame_num) + '.png'), img)
 
                 # save preds and gts at each scale
@@ -369,11 +369,12 @@ class GeneratorModel:
         print 'Testing:'
 
         ##
+        # The batch is already processed...
         # Split into inputs and outputs
         ##
 
-        input_frames = batch[:, :, :, :3 * c.HIST_LEN]
-        gt_frames = batch[:, :, :, 3 * c.HIST_LEN:]
+        input_frames = batch[:, :, :, :c.CHANNELS_PER_FRAME*c.HIST_LEN]
+        # gt_frames = batch[:, :, :, c.CHANNELS_PER_FRAME*c.HIST_LEN : c.CHANNELS_PER_FRAME*c.HIST_LEN + 3]
 
         ##
         # Generate num_rec_out recursive predictions
@@ -383,7 +384,9 @@ class GeneratorModel:
         rec_preds = []
         rec_summaries = []
         for rec_num in xrange(num_rec_out):
-            working_gt_frames = gt_frames[:, :, :, 3 * rec_num:3 * (rec_num + 1)]
+            # working_gt_frames = gt_frames[:, :, :, 3 * rec_num:3 * (rec_num + 1)]
+            working_gt_frames = \
+                batch[:, :, :, (rec_num+c.HIST_LEN)*c.CHANNELS_PER_FRAME :(rec_num+c.HIST_LEN)*c.CHANNELS_PER_FRAME + 3]
 
             feed_dict = {self.input_frames_test: working_input_frames,
                          self.gt_frames_test: working_gt_frames}
@@ -392,10 +395,15 @@ class GeneratorModel:
                                                                self.sharpdiff_error_test,
                                                                self.summaries_test],
                                                               feed_dict=feed_dict)
-
-            # remove first input and add new pred as last input
+            # First, get the action slice...
+            action_slice = batch[:,:,:,(rec_num+c.HIST_LEN)*c.CHANNELS_PER_FRAME + 3 : (rec_num+c.HIST_LEN+1)*c.CHANNELS_PER_FRAME]
+            # remove first input and add new pred as last input            
             working_input_frames = np.concatenate(
-                [working_input_frames[:, :, :, 3:], preds], axis=3)
+                [working_input_frames[:, :, :, c.CHANNELS_PER_FRAME:], preds, action_slice], axis=3)
+            # Then attaches the proper action...
+            # action_slice = batch[:,:,:,c.CHANNELS_PER_FRAME*rec_num]
+            # working_input_frames = np.concatenate(
+            #     [working_input_frames[:, :, :, 3:], batch[:, :, :, ]], axis=3)
 
             # add predictions and summaries
             rec_preds.append(preds)

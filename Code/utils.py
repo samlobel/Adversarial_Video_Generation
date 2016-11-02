@@ -54,52 +54,6 @@ def clip_l2_diff(clip):
 
     return diff
 
-# def get_full_clips(data_dir, num_clips, num_rec_out=1):
-#     """
-#     Loads a batch of random clips from the unprocessed train or test data.
-
-#     @param data_dir: The directory of the data to read. Should be either c.TRAIN_DIR or c.TEST_DIR.
-#     @param num_clips: The number of clips to read.
-#     @param num_rec_out: The number of outputs to predict. Outputs > 1 are computed recursively,
-#                         using the previously-generated frames as input. Default = 1.
-
-#     @return: An array of shape
-#              [num_clips, c.TRAIN_HEIGHT, c.TRAIN_WIDTH, (3 * (c.HIST_LEN + num_rec_out))].
-#              A batch of frame sequences with values normalized in range [-1, 1].
-#     """
-#     if c.conf is None:
-#         c.load_config(data_dir)
-
-#     clips = np.empty([num_clips,
-#                       c.FULL_HEIGHT,
-#                       c.FULL_WIDTH,
-#                       (3 * (c.HIST_LEN + num_rec_out))])
-#     actions = np.empty(num_cips)
-
-#     # get num_clips random episodes
-#     ep_dirs = np.random.choice(glob(os.path.join(data_dir, '*')), num_clips)
-
-#     # get a random clip of length HIST_LEN + num_rec_out from each episode
-#     for clip_num, ep_dir in enumerate(ep_dirs):
-#         ep_frame_paths = sorted(glob(os.path.join(ep_dir, c.conf['frame_prefix'] + '*')))
-#         ep_action_paths = sorted(glob(os.path.join(ep_dir, c.conf['action_prefix'] + '*')))
-#         start_index = np.random.choice(len(ep_frame_paths) - (c.HIST_LEN + num_rec_out - 1))
-#         clip_frame_paths = ep_frame_paths[start_index:start_index + (c.HIST_LEN + num_rec_out)]
-#         clip_action_paths = ep_action_paths[start_index:start_index + (c.HIST_LEN + num_rec_out)]
-
-#         # read in frames
-#         for frame_num, frame_path in enumerate(clip_frame_paths):
-#             frame = imread(frame_path, mode='RGB')
-#             norm_frame = normalize_frames(frame)
-
-#             clips[clip_num, :, :, frame_num * 3:(frame_num + 1) * 3] = norm_frame
-#         for act_num, act_path in enumerate(clip_action_paths):
-#             with open(act_path,'r') as f:
-#                 act = int(f.read())
-#                 actions[frame_num]=act
-
-#     return clips, actions
-
 def get_full_clips_and_actions(data_dir, num_clips, num_rec_out=1):
     """
     Loads a batch of random clips from the unprocessed train or test data.
@@ -116,8 +70,6 @@ def get_full_clips_and_actions(data_dir, num_clips, num_rec_out=1):
              And, an array of size [num_clips] that is the int values of each action. To be
              converted later into the proper input format.
     """
-    if c.conf is None:
-        c.load_config(data_dir)
 
     clips = np.zeros([num_clips,
                       c.FULL_HEIGHT,
@@ -130,8 +82,8 @@ def get_full_clips_and_actions(data_dir, num_clips, num_rec_out=1):
 
     # get a random clip of length HIST_LEN + num_rec_out from each episode
     for clip_num, ep_dir in enumerate(ep_dirs):
-        ep_frame_paths = sorted(glob(os.path.join(ep_dir, c.conf['frame_prefix'] + '*')))
-        ep_action_paths = sorted(glob(os.path.join(ep_dir, c.conf['action_prefix'] + '*')))
+        ep_frame_paths = sorted(glob(os.path.join(ep_dir, c.FRAME_PREFIX + '*')))
+        ep_action_paths = sorted(glob(os.path.join(ep_dir, c.ACTION_PREFIX + '*')))
         start_index = np.random.choice(len(ep_frame_paths) - (c.HIST_LEN + num_rec_out - 1))
         clip_frame_paths = ep_frame_paths[start_index:start_index + (c.HIST_LEN + num_rec_out)]
         clip_action_paths = ep_action_paths[start_index:start_index + (c.HIST_LEN + num_rec_out)]
@@ -143,12 +95,12 @@ def get_full_clips_and_actions(data_dir, num_clips, num_rec_out=1):
 
             clips[clip_num, :, :, frame_num * 3:(frame_num + 1) * 3] = norm_frame
         for act_num, act_path in enumerate(clip_action_paths):
-            print(act_num)
-            print(act_path)
+            # print(act_num)
+            # print(act_path)
             with open(act_path,'r') as f:
                 act = int(f.read())
                 actions[clip_num, act_num]=act
-                print(actions)
+                # print(actions)
 
     return clips, actions
 
@@ -185,11 +137,11 @@ def get_train_batch():
     @return: An array of shape
             [c.BATCH_SIZE, c.TRAIN_HEIGHT, c.TRAIN_WIDTH, (3 * (c.HIST_LEN + 1))].
     """
-    clips = np.empty([c.BATCH_SIZE, c.TRAIN_HEIGHT, c.TRAIN_WIDTH, (3 * (c.HIST_LEN + 1))],
+    clips = np.empty([c.BATCH_SIZE, c.TRAIN_HEIGHT, c.TRAIN_WIDTH, ((3 + c.NUM_POSSIBLE_MOVES) * (c.HIST_LEN + 1))],
                      dtype=np.float32)
     for i in xrange(c.BATCH_SIZE):
         path = c.TRAIN_DIR_CLIPS + str(np.random.choice(c.NUM_CLIPS)) + '.npz'
-        clip = np.load(path)['arr_0']
+        clip = np.load(path)['concat_clip_actions']
 
         clips[i] = clip
 
@@ -207,8 +159,34 @@ def get_test_batch(test_batch_size, num_rec_out=1):
     @return: An array of shape:
              [test_batch_size, c.TEST_HEIGHT, c.TEST_WIDTH, (3 * (c.HIST_LEN + num_rec_out))].
              A batch of frame sequences with values normalized in range [-1, 1].
+
+    I need to modify this so that it outputs something of the proper form.
     """
-    return get_full_clips(c.TEST_DIR, test_batch_size, num_rec_out=num_rec_out)
+    clips, actions = get_full_clips_and_actions(c.TEST_DIR, test_batch_size, num_rec_out=num_rec_out)
+    # This is the data processing that happens naturally in process_data
+    num_clips, height, width, num_channels_clips = clips.shape
+    print('clips shape is: {}'.format(clips.shape))
+    full_rec_len = actions.shape[1]
+    if (3 * full_rec_len) != num_channels_clips:
+        raise Exception("Shapes do not line up in get_test_batch")
+
+    channels_per_turn = 3 + c.NUM_POSSIBLE_MOVES
+
+    total_channels = channels_per_turn * full_rec_len
+    to_return = np.zeros((num_clips, height, width, total_channels), dtype=np.float32)
+    print('to_return shape: {}'.format(to_return.shape))
+    for num in xrange(num_clips):
+        clip = clips[num]
+        act = actions[num]
+        for frame_num in xrange(full_rec_len):
+            to_return[num,:,:,(frame_num*channels_per_turn) : (frame_num*channels_per_turn) +3] = \
+                clip[:,:,3*frame_num:3*(frame_num+1)]
+            to_return[num,:,:,(frame_num*channels_per_turn) + int(act[frame_num])] = 1.0
+    return to_return
+
+
+
+    
 
 
 ##
