@@ -78,7 +78,7 @@ def get_full_clips_and_actions(data_dir, num_clips, num_rec_out=1):
     actions = np.zeros((num_clips, c.HIST_LEN + num_rec_out))
 
     # get num_clips random episodes
-    ep_dirs = np.random.choice(glob(os.path.join(data_dir, '*', '')), num_clips)
+    ep_dirs = np.random.choice(glob(os.path.join(data_dir, '*')), num_clips)
 
     # get a random clip of length HIST_LEN + num_rec_out from each episode
     for clip_num, ep_dir in enumerate(ep_dirs):

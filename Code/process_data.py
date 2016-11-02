@@ -135,7 +135,8 @@ def main():
     ##
     # Process data for training
     ##
-
+    # print(c.TRAIN_DIR)
+    # print(c.TRAIN_DIR_CLIPS)
     process_training_data(num_clips)
 
 

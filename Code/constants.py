@@ -11,6 +11,7 @@ import json
 ##
 
 
+
 def get_date_str():
     """
     @return: A string representing the current date/time that can be used as a directory name.
@@ -52,6 +53,8 @@ def get_test_frame_dims():
     return shape[0], shape[1]
 
 def get_train_frame_dims():
+    path = os.path.join(TRAIN_DIR, '*/*.png')
+    print('PATH: ' + path)
     img_path = glob(os.path.join(TRAIN_DIR, '*/*.png'))[0]
     img = imread(img_path, mode='RGB')
     shape = np.shape(img)
@@ -74,15 +77,21 @@ NUM_POSSIBLE_MOVES=6
 
 CHANNELS_PER_FRAME=NUM_POSSIBLE_MOVES+3
 
-FRAME_PREFIX = 'FRAME'
-ACTION_PREFIX = 'ACTION'
+FRAME_PREFIX = 'Frame'
+ACTION_PREFIX = 'Action'
+
+THIS_DIR = os.path.dirname(os.path.realpath(__file__))
+# print('THIS DIRECTORY: ' + THIS_DIR)
 # root directory for all data
-DATA_DIR = get_dir('../Data/')
+DATA_DIR = get_dir(os.path.join(THIS_DIR, '..', 'Data/'))
+# print('DATA_DIR: ' + DATA_DIR)
 SUBDATA_DIR = 'Pong_01'
 
 TRAIN_DIR = os.path.join(DATA_DIR, SUBDATA_DIR, 'Train', '')
 
 TEST_DIR = os.path.join(DATA_DIR, SUBDATA_DIR, 'Test', '')
+# print('TRAIN DIR: ' + TRAIN_DIR)
+# print('TEST DIR: ' + TEST_DIR)
 # directory of unprocessed training frames
 
 # TRAIN_DIR = os.path.join(DATA_DIR, 'Ms_Pacman/Train/')

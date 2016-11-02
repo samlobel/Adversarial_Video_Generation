@@ -1,2 +1,2 @@
 ### From ./Code:
-`python process_data.py -n 50000 -t /Users/samlobel/Code/NeuralNets/DECEBAL/Adversarial_Video_Generation/Data/Pong_01/Raw -c /Users/samlobel/Code/NeuralNets/DECEBAL/Adversarial_Video_Generation/Data/Pong_01/.Clips/`
+`python process_data.py -n 50000 -t /Users/samlobel/Code/NeuralNets/DECEBAL/Adversarial_Video_Generation/Data/Pong_01/Train -c /Users/samlobel/Code/NeuralNets/DECEBAL/Adversarial_Video_Generation/Data/Pong_01/.Clips/`
