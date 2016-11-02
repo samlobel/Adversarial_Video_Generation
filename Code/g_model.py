@@ -434,7 +434,9 @@ class GeneratorModel:
                 # save recursive outputs
                 for rec_num in xrange(num_rec_out):
                     gen_img = rec_preds[rec_num][pred_num]
-                    gt_img = gt_frames[pred_num, :, :, 3 * rec_num:3 * (rec_num + 1)]
+                    # gt_img = gt_frames[pred_num, :, :, 3 * rec_num:3 * (rec_num + 1)]
+                    gt_img = \
+                        batch[pred_num, :, :, (rec_num+c.HIST_LEN)*c.CHANNELS_PER_FRAME :(rec_num+c.HIST_LEN)*c.CHANNELS_PER_FRAME + 3]
                     imsave(os.path.join(pred_dir, 'gen_' + str(rec_num) + '.png'), gen_img)
                     imsave(os.path.join(pred_dir, 'gt_' + str(rec_num) + '.png'), gt_img)
 
