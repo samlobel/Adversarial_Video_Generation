@@ -170,7 +170,7 @@ def get_test_batch(test_batch_size, num_rec_out=1):
     if (3 * full_rec_len) != num_channels_clips:
         raise Exception("Shapes do not line up in get_test_batch")
 
-    total_channels = CHANNELS_PER_FRAME * full_rec_len
+    total_channels = c.CHANNELS_PER_FRAME * full_rec_len
 
     to_return = np.zeros((num_clips, height, width, total_channels), dtype=np.float32)
     print('to_return shape: {}'.format(to_return.shape))
@@ -178,9 +178,9 @@ def get_test_batch(test_batch_size, num_rec_out=1):
         clip = clips[num]
         act = actions[num]
         for frame_num in xrange(full_rec_len):
-            to_return[num,:,:,(frame_num*CHANNELS_PER_FRAME) : (frame_num*CHANNELS_PER_FRAME) +3] = \
+            to_return[num,:,:,(frame_num*c.CHANNELS_PER_FRAME) : (frame_num*c.CHANNELS_PER_FRAME) +3] = \
                 clip[:,:,3*frame_num:3*(frame_num+1)]
-            to_return[num,:,:,(frame_num*CHANNELS_PER_FRAME) + 3 + int(act[frame_num])] = 1.0
+            to_return[num,:,:,(frame_num*c.CHANNELS_PER_FRAME) + 3 + int(act[frame_num])] = 1.0
     return to_return
 
 

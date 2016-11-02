@@ -428,7 +428,7 @@ class GeneratorModel:
 
                 # save input images
                 for frame_num in xrange(c.HIST_LEN):
-                    img = input_frames[pred_num, :, :, (frame_num * 3):((frame_num + 1) * 3)]
+                    img = input_frames[pred_num, :, :, (frame_num * c.CHANNELS_PER_FRAME):(frame_num * c.CHANNELS_PER_FRAME) + 3]
                     imsave(os.path.join(pred_dir, 'input_' + str(frame_num) + '.png'), img)
 
                 # save recursive outputs

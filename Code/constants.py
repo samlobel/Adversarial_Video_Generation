@@ -140,7 +140,7 @@ def clear_save_name():
 
 
 # root directory for all saved content
-SAVE_DIR = get_dir(THIS_DIR, '..', 'Save/')
+SAVE_DIR = get_dir(os.path.join(THIS_DIR, '..', 'Save/'))
 
 # inner directory to differentiate between runs
 SAVE_NAME = 'Default/'
@@ -153,16 +153,16 @@ IMG_SAVE_DIR = get_dir(os.path.join(SAVE_DIR, 'Images/', SAVE_NAME))
 
 
 # STATS_FREQ      = 10     # how often to print loss/train error stats, in # steps
-# SUMMARY_FREQ    = 10    # how often to save the summaries, in # steps
-# IMG_SAVE_FREQ   = 5   # how often to save generated images, in # steps
+# SUMMARY_FREQ    = 100    # how often to save the summaries, in # steps
+# IMG_SAVE_FREQ   = 1000   # how often to save generated images, in # steps
 # TEST_FREQ       = 5000   # how often to test the model on test data, in # steps
 # MODEL_SAVE_FREQ = 10000  # how often to save the model, in # steps
 
-STATS_FREQ      = 5     # how often to print loss/train error stats, in # steps
-SUMMARY_FREQ    = 5    # how often to save the summaries, in # steps
-IMG_SAVE_FREQ   = 5   # how often to save generated images, in # steps
-TEST_FREQ       = 2   # how often to test the model on test data, in # steps
-MODEL_SAVE_FREQ = 5  # how often to save the model, in # steps
+STATS_FREQ      = 10     # how often to print loss/train error stats, in # steps
+SUMMARY_FREQ    = 10    # how often to save the summaries, in # steps
+IMG_SAVE_FREQ   = 10   # how often to save generated images, in # steps
+TEST_FREQ       = 10   # how often to test the model on test data, in # steps
+MODEL_SAVE_FREQ = 10  # how often to save the model, in # steps
 
 
 
