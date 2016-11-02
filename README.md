@@ -4,6 +4,12 @@ This project implements a generative adversarial network to predict future frame
 Couprie & LeCun. Their official code (using Torch) can be found 
 [here](https://github.com/coupriec/VideoPredictionICLR2016).
 
+##
+Installation steps:
+* Step one: Install tensorflow.
+* Step two: install OpenAI Gym (all)
+* Step three: ???
+
 ## SAM STUFF 
 This one is perfect, because A) it actually works, and B) it has get_test_batch and get_train_batch methods that I can modify.
 I'll do them straight from experience replay. It'll be great.
