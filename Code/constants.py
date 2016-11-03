@@ -10,6 +10,12 @@ import json
 # Data
 ##
 
+THIS_DIR = os.path.dirname(os.path.realpath(__file__))
+NUM_COLOR_CHANNELS = 3
+
+
+LOAD_PATH_FOR_MODELS=None
+NUM_TEST_REC = 2  # number of recursive predictions to make on test
 
 
 def get_date_str():
@@ -73,32 +79,66 @@ def set_test_dir(directory):
     FULL_HEIGHT, FULL_WIDTH = get_test_frame_dims()
 
 
-# NUM_POSSIBLE_MOVES=6 #Pong
-NUM_POSSIBLE_MOVES=9 #MsPacman
+DATA_DIR = get_dir(os.path.join(THIS_DIR, '..', 'Data/'))
 
-CHANNELS_PER_FRAME=NUM_POSSIBLE_MOVES+3
+
+###############################################################################
+#################              PIPELINE OPTIONS               #################
+###############################################################################
+# REAL
+TRAINING_DATA_NUM_GAMES = 10
+TEST_DATA_NUM_GAMES = 3
+NUM_CLIPS_TO_PROCESS = 500000
+
+# # Quick Test
+# TRAINING_DATA_NUM_GAMES = 1
+# TEST_DATA_NUM_GAMES = 1
+# NUM_CLIPS_TO_PROCESS = 1000
+
+# ###############################################################################
+# ###############################################################################
+# ###############################################################################
+
+
+
+
+###############################################################################
+#################                FOR MSPACMAN                 #################
+###############################################################################
+ENV_NAME='MsPacman-v0'
+CROP_BOX=[0,0,160,185]
+
+NUM_POSSIBLE_MOVES = 9 #MsPacman
+
+
+# ###############################################################################
+# #################                  FOR PONG                   #################
+# ###############################################################################
+# ENV_NAME='MsPacman-v0'
+# CROP_BOX=[0,0,160,185] #THIS ISN'T ACTUALLY RIGHT...
+
+# NUM_POSSIBLE_MOVES=6 #Pong
+
+# ###############################################################################
+# ###############################################################################
+# ###############################################################################
+
+
+
+CHANNELS_PER_FRAME = NUM_POSSIBLE_MOVES + NUM_COLOR_CHANNELS
 
 FRAME_PREFIX = 'Frame'
 ACTION_PREFIX = 'Action'
 
-THIS_DIR = os.path.dirname(os.path.realpath(__file__))
-# print('THIS DIRECTORY: ' + THIS_DIR)
 # root directory for all data
-DATA_DIR = get_dir(os.path.join(THIS_DIR, '..', 'Data/'))
-# print('DATA_DIR: ' + DATA_DIR)
-SUBDATA_DIR = 'Pong_01'
+
+
+SUBDATA_DIR = ENV_NAME + ''
 
 TRAIN_DIR = os.path.join(DATA_DIR, SUBDATA_DIR, 'Train', '')
 
 TEST_DIR = os.path.join(DATA_DIR, SUBDATA_DIR, 'Test', '')
-# print('TRAIN DIR: ' + TRAIN_DIR)
-# print('TEST DIR: ' + TEST_DIR)
 # directory of unprocessed training frames
-
-# TRAIN_DIR = os.path.join(DATA_DIR, 'Ms_Pacman/Train/')
-# directory of unprocessed test frames
-# TEST_DIR = os.path.join(DATA_DIR, 'Ms_Pacman/Test/')
-# Directory of processed training clips.
 # hidden so finder doesn't freeze w/ so many files. DON'T USE `ls` COMMAND ON THIS DIR!
 
 TRAIN_DIR_CLIPS = get_dir(os.path.join(DATA_DIR, SUBDATA_DIR, '.Clips/'))
@@ -152,19 +192,26 @@ SUMMARY_SAVE_DIR = get_dir(os.path.join(SAVE_DIR, 'Summaries/', SAVE_NAME))
 # directory for saved images
 IMG_SAVE_DIR = get_dir(os.path.join(SAVE_DIR, 'Images/', SAVE_NAME))
 
-
+# #### HIS OLD FREQ NUMBERS
 # STATS_FREQ      = 10     # how often to print loss/train error stats, in # steps
 # SUMMARY_FREQ    = 100    # how often to save the summaries, in # steps
 # IMG_SAVE_FREQ   = 1000   # how often to save generated images, in # steps
 # TEST_FREQ       = 5000   # how often to test the model on test data, in # steps
 # MODEL_SAVE_FREQ = 10000  # how often to save the model, in # steps
 
-STATS_FREQ      = 1     # how often to print loss/train error stats, in # steps
-SUMMARY_FREQ    = 1    # how often to save the summaries, in # steps
-IMG_SAVE_FREQ   = 1   # how often to save generated images, in # steps
-TEST_FREQ       = 1   # how often to test the model on test data, in # steps
-MODEL_SAVE_FREQ = 1  # how often to save the model, in # steps
+##### MY FREQ NUMBERS FOR DECEBAL SERVER
+STATS_FREQ      = 10     # how often to print loss/train error stats, in # steps
+SUMMARY_FREQ    = 10    # how often to save the summaries, in # steps
+IMG_SAVE_FREQ   = 500   # how often to save generated images, in # steps
+TEST_FREQ       = 1000   # how often to test the model on test data, in # steps
+MODEL_SAVE_FREQ = 2000  # how often to save the model, in # steps
 
+# ##### MY FREQ NUMBERS FOR QUICK TEST
+# STATS_FREQ      = 1     # how often to print loss/train error stats, in # steps
+# SUMMARY_FREQ    = 1    # how often to save the summaries, in # steps
+# IMG_SAVE_FREQ   = 1   # how often to save generated images, in # steps
+# TEST_FREQ       = 1   # how often to test the model on test data, in # steps
+# MODEL_SAVE_FREQ = 1  # how often to save the model, in # steps
 
 
 ##

@@ -106,7 +106,7 @@ def main():
     # Handle command line input
     ##
 
-    num_clips = 5000000
+    num_clips = c.NUM_CLIPS_TO_PROCESS
 
     try:
         opts, _ = getopt.getopt(sys.argv[1:], 'n:t:c:oH',
@@ -135,8 +135,6 @@ def main():
     ##
     # Process data for training
     ##
-    # print(c.TRAIN_DIR)
-    # print(c.TRAIN_DIR_CLIPS)
     process_training_data(num_clips)
 
 

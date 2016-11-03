@@ -60,6 +60,8 @@ class AVGRunner:
         """
         Runs a training loop on the model networks.
         """
+        if self.global_step and (self.global_step % 10 == 0):
+            print("GLOBAL STEP: " + str(global_step))
         while True:
             if c.ADVERSARIAL:
                 # update discriminator
@@ -92,6 +94,9 @@ class AVGRunner:
         Runs one test step on the generator network.
         Passes in processed data in a way 
         """
+        if self.global_step and (self.global_step % 10 == 0):
+            print("GLOBAL STEP: " + str(global_step))
+
         batch = get_test_batch(c.BATCH_SIZE, num_rec_out=self.num_test_rec)
         self.g_model.test_batch(
             batch, self.global_step, num_rec_out=self.num_test_rec)
@@ -120,10 +125,12 @@ def main():
     ##
 
     # load_path = None
-    load_path = '/Users/samlobel/Code/NeuralNets/DECEBAL/Adversarial_Video_Generation/Save/Models/Default/model.ckpt-4'
+    load_path=c.LOAD_PATH_FOR_MODELS
+    # load_path = '/Users/samlobel/Code/NeuralNets/DECEBAL/Adversarial_Video_Generation/Save/Models/Default/model.ckpt-4'
     test_only = False
+    num_test_rec=c.NUM_TEST_REC
     # num_test_rec = 1  # number of recursive predictions to make on test
-    num_test_rec = 3  # number of recursive predictions to make on test
+    # num_test_rec = 3  # number of recursive predictions to make on test
     try:
         opts, _ = getopt.getopt(sys.argv[1:], 'l:t:r:a:n:OTH',
                                 ['load_path=', 'test_dir=', 'recursions=', 'adversarial=', 'name=',
