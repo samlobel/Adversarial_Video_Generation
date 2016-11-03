@@ -119,9 +119,11 @@ def main():
     # Handle command line input.
     ##
 
-    load_path = None
+    # load_path = None
+    load_path = '/Users/samlobel/Code/NeuralNets/DECEBAL/Adversarial_Video_Generation/Save/Models/Default/model.ckpt-4'
     test_only = False
-    num_test_rec = 1  # number of recursive predictions to make on test
+    # num_test_rec = 1  # number of recursive predictions to make on test
+    num_test_rec = 3  # number of recursive predictions to make on test
     try:
         opts, _ = getopt.getopt(sys.argv[1:], 'l:t:r:a:n:OTH',
                                 ['load_path=', 'test_dir=', 'recursions=', 'adversarial=', 'name=',

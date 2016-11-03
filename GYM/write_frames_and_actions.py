@@ -1,34 +1,46 @@
+import constants as c
+
 import gym
+env = gym.make(c.ENV_NAME)
 from time import sleep
-env = gym.make('Pong-v0')
 from PIL import Image
 import os
 import json
 import argparse
+
+
+
+# sys.path.insert(0, "..")
+
+# print(sys.path)
+
+# from Code import constants as c
 # It's going to make a config file, that has num_frames, num_actions,
 
 # http://stackoverflow.com/questions/4711880/pil-using-fromarray-with-binary-data-and-writing-coloured-text
 # http://stackoverflow.com/questions/902761/saving-a-numpy-array-as-an-image
+
+
+# print('exiting early')
+# exit()
+
+
+def crop_image(image):
+  if c.CROP_BOX is None:
+    return image
+  image = image.crop(c.CROP_BOX)
+  return image
+
+
 def write_observation(pic_arr, frame_num, ep_number, data_dir, prefix='Frame'):
   subdir_name = os.path.join(data_dir, str(ep_number).zfill(5))
   if not os.path.isdir(subdir_name):
     os.makedirs(subdir_name)
   im = Image.fromarray(pic_arr).convert('RGB')
+  im = crop_image(im)
   filename = os.path.join(subdir_name, prefix + str(frame_num).zfill(5) + '.png')
   im.save(filename)
-
-# def write_config(num_moves, data_dir, frame_prefix='Frame', action_prefix='Action'):
-#   if not os.path.isdir(data_dir):
-#     os.makedirs(data_dir)
-#   conf = {
-#     'num_moves' : num_moves,
-#     'frame_prefix' : frame_prefix,
-#     'action_prefix' : action_prefix
-#   }
-#   json_conf = json.dumps(conf)
-#   with open(os.path.join(data_dir, 'config.json'),'w') as f:
-#     f.write(json_conf)
-#   print('conf written')
+  # im.show()
 
 def write_action(action, frame_num, ep_number, data_dir, prefix='Action'):
   subdir_name = os.path.join(data_dir, str(ep_number).zfill(5))
@@ -48,7 +60,6 @@ def main(data_dir, num_games=10):
   num_actions = env.action_space.n
   print('num actions is ' + str(num_actions))
   reward = 0
-  # write_config(num_actions, data_dir)
   for game_num in range(num_games):
     print('starting game {}'.format(game_num))
     observation = env.reset()

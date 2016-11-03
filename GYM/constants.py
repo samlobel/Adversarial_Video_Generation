@@ -1,0 +1,3 @@
+
+ENV_NAME='MsPacman-v0'
+CROP_BOX=[0,0,160,185]

@@ -73,7 +73,8 @@ def set_test_dir(directory):
     FULL_HEIGHT, FULL_WIDTH = get_test_frame_dims()
 
 
-NUM_POSSIBLE_MOVES=6
+# NUM_POSSIBLE_MOVES=6 #Pong
+NUM_POSSIBLE_MOVES=9 #MsPacman
 
 CHANNELS_PER_FRAME=NUM_POSSIBLE_MOVES+3
 
@@ -158,11 +159,11 @@ IMG_SAVE_DIR = get_dir(os.path.join(SAVE_DIR, 'Images/', SAVE_NAME))
 # TEST_FREQ       = 5000   # how often to test the model on test data, in # steps
 # MODEL_SAVE_FREQ = 10000  # how often to save the model, in # steps
 
-STATS_FREQ      = 10     # how often to print loss/train error stats, in # steps
-SUMMARY_FREQ    = 10    # how often to save the summaries, in # steps
-IMG_SAVE_FREQ   = 10   # how often to save generated images, in # steps
-TEST_FREQ       = 10   # how often to test the model on test data, in # steps
-MODEL_SAVE_FREQ = 10  # how often to save the model, in # steps
+STATS_FREQ      = 1     # how often to print loss/train error stats, in # steps
+SUMMARY_FREQ    = 1    # how often to save the summaries, in # steps
+IMG_SAVE_FREQ   = 1   # how often to save generated images, in # steps
+TEST_FREQ       = 1   # how often to test the model on test data, in # steps
+MODEL_SAVE_FREQ = 1  # how often to save the model, in # steps
 
 
 

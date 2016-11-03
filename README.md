@@ -8,7 +8,11 @@ Couprie & LeCun. Their official code (using Torch) can be found
 Installation steps:
 * Step one: Install tensorflow.
 * Step two: install OpenAI Gym (all)
-* Step three: ???
+
+* AWS: https://github.com/fluxcapacitor/pipeline/wiki/AWS-GPU-TensorFlow-Docker
+
+
+
 
 ## SAM STUFF 
 This one is perfect, because A) it actually works, and B) it has get_test_batch and get_train_batch methods that I can modify.
