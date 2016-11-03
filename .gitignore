@@ -3,6 +3,7 @@
 *.pyc
 .DS_STORE
 ARCHIVE/*
+*.out
 
 Data/
 Comparison/
