@@ -61,7 +61,7 @@ class AVGRunner:
         Runs a training loop on the model networks.
         """
         if self.global_step and (self.global_step % 10 == 0):
-            print("GLOBAL STEP: " + str(global_step))
+            print("GLOBAL STEP: " + str(self.global_step))
         while True:
             if c.ADVERSARIAL:
                 # update discriminator
@@ -95,7 +95,7 @@ class AVGRunner:
         Passes in processed data in a way 
         """
         if self.global_step and (self.global_step % 10 == 0):
-            print("GLOBAL STEP: " + str(global_step))
+            print("GLOBAL STEP: " + str(self.global_step))
 
         batch = get_test_batch(c.BATCH_SIZE, num_rec_out=self.num_test_rec)
         self.g_model.test_batch(
